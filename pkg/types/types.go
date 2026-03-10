@@ -64,6 +64,7 @@ type LessonDef struct {
 	Title      string
 	Tier       Tier
 	Summary    string
+	SourceFile string // relative path for "edit on GitHub" links
 	Theory     []TheoryBlock
 	VizBuilder func(w, h int) interface{} // returns a viz.Model
 	Questions  []QuizQuestion

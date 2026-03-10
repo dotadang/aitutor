@@ -11,7 +11,8 @@ func init() {
 		ID:      11,
 		Title:   "Subagents",
 		Tier:    types.Advanced,
-		Summary: "Parallel execution with specialized sub-processes",
+		Summary:    "Parallel execution with specialized sub-processes",
+		SourceFile: "internal/content/advanced/11_subagents.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewFanoutModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Subagents"},

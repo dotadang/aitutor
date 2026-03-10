@@ -11,7 +11,8 @@ func init() {
 		ID:      13,
 		Title:   "Tool Search & Deferred Tools",
 		Tier:    types.Advanced,
-		Summary: "Lazy-loading tools to optimize context usage",
+		Summary:    "Lazy-loading tools to optimize context usage",
+		SourceFile: "internal/content/advanced/13_tool_search.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewToolSearchModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "The Tool Search Problem"},

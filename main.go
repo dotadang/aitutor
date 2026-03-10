@@ -13,9 +13,11 @@ import (
 	_ "github.com/naorpeled/aitutor/internal/content/advanced"
 )
 
+var Version = "dev"
+
 func main() {
 	p := tea.NewProgram(
-		app.NewAppModel(),
+		app.NewAppModel(Version),
 		tea.WithAltScreen(),
 	)
 	if _, err := p.Run(); err != nil {

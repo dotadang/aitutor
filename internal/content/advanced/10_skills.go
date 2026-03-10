@@ -11,7 +11,8 @@ func init() {
 		ID:      10,
 		Title:   "Skills",
 		Tier:    types.Advanced,
-		Summary: "Reusable workflows and specialized knowledge",
+		Summary:    "Reusable workflows and specialized knowledge",
+		SourceFile: "internal/content/advanced/10_skills.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewSkillLoadModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Skills"},

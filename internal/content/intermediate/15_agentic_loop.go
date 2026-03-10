@@ -11,7 +11,8 @@ func init() {
 		ID:      15,
 		Title:   "The Agentic Loop",
 		Tier:    types.Intermediate,
-		Summary: "How AI agents iterate to solve problems",
+		Summary:    "How AI agents iterate to solve problems",
+		SourceFile: "internal/content/intermediate/15_agentic_loop.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewAgenticLoopModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "The Agentic Loop"},

@@ -11,7 +11,8 @@ func init() {
 		ID:      7,
 		Title:   "Hooks",
 		Tier:    types.Intermediate,
-		Summary: "Lifecycle hooks for AI assistant actions",
+		Summary:    "Lifecycle hooks for AI assistant actions",
+		SourceFile: "internal/content/intermediate/07_hooks.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewLifecycleModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Hooks"},

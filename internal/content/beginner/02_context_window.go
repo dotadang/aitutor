@@ -11,7 +11,8 @@ func init() {
 		ID:      2,
 		Title:   "Context Window",
 		Tier:    types.Beginner,
-		Summary: "How AI models see and process information",
+		Summary:    "How AI models see and process information",
+		SourceFile: "internal/content/beginner/02_context_window.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewBucketModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "The Context Window"},

@@ -11,7 +11,8 @@ func init() {
 		ID:      14,
 		Title:   "Batch Tool Calls",
 		Tier:    types.Advanced,
-		Summary: "Per-tool execution policies and parallel batching",
+		Summary:    "Per-tool execution policies and parallel batching",
+		SourceFile: "internal/content/advanced/14_batch_tools.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewBatchToolModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Batch Tool Calls"},

@@ -16,8 +16,8 @@ Enter
 Sleep 3s
 Show
 
-# Welcome screen — admire it
-Sleep 2.5s
+# Welcome screen — admire the neural-net animation and typing effect
+Sleep 4s
 
 # Dismiss welcome → lands on lesson 1
 Enter

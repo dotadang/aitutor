@@ -11,7 +11,8 @@ func init() {
 		ID:      4,
 		Title:   "Prompt Engineering",
 		Tier:    types.Beginner,
-		Summary: "Writing effective instructions for AI assistants",
+		Summary:    "Writing effective instructions for AI assistants",
+		SourceFile: "internal/content/beginner/04_prompt_engineering.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewPromptImproveModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Prompt Engineering"},

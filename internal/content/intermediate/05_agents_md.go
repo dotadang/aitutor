@@ -11,7 +11,8 @@ func init() {
 		ID:      5,
 		Title:   "Project AI Config Files",
 		Tier:    types.Intermediate,
-		Summary: "Project-specific AI configuration files",
+		Summary:    "Project-specific AI configuration files",
+		SourceFile: "internal/content/intermediate/05_agents_md.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewClaudeMDBuilderModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Project AI Config Files"},

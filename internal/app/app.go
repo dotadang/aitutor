@@ -24,6 +24,8 @@ type AppModel struct {
 	ready       bool
 	showWelcome bool
 	showHelp    bool
+	version     string
+	anim        neuralNet
 
 	lessons     []types.LessonDef
 	lessonIdx   int
@@ -32,17 +34,18 @@ type AppModel struct {
 	tracker     *progress.Tracker
 }
 
-func NewAppModel() AppModel {
+func NewAppModel(version string) AppModel {
 	return AppModel{
 		header:      ui.NewHeaderModel(),
 		footer:      ui.NewFooterModel(),
 		sidebarOpen: false,
 		showWelcome: true,
+		version:     version,
 	}
 }
 
 func (m AppModel) Init() tea.Cmd {
-	return nil
+	return animTick()
 }
 
 func (m *AppModel) loadLessons() {
@@ -90,6 +93,12 @@ func (m *AppModel) markLessonComplete() {
 
 func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case animTickMsg:
+		if m.showWelcome {
+			m.anim.advance()
+			return m, animTick()
+		}
+		return m, nil
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
@@ -276,9 +285,15 @@ func (m AppModel) viewWelcome() string {
  /_/   \_\___| |_| \__,_|\__\___/|_|`)
 
 	var lines []string
+	lines = append(lines, m.anim.View())
 	lines = append(lines, logo)
 	lines = append(lines, "")
-	lines = append(lines, bright.Render("  Interactive AI Coding Concepts Tutorial"))
+	tagline := "Interactive AI Coding Concepts Tutorial"
+	visibleLen := m.anim.frame * 2
+	if visibleLen > len(tagline) {
+		visibleLen = len(tagline)
+	}
+	lines = append(lines, bright.Render("  "+tagline[:visibleLen]))
 	lines = append(lines, "")
 	lines = append(lines, dim.Render("  Learn AI-assisted development through hands-on lessons."))
 	lines = append(lines, dim.Render("  Each lesson has theory, an interactive visualization, and a quiz."))
@@ -302,6 +317,14 @@ func (m AppModel) viewWelcome() string {
 
 	lines = append(lines, accent.Render("  Press any key to start"))
 	lines = append(lines, dim.Render("  Press q to quit"))
+	lines = append(lines, "")
+	lines = append(lines, dim.Render("  "+m.version))
+	lines = append(lines, "")
+	lines = append(lines, dim.Render("  Contribute → github.com/naorpeled/aitutor"))
+	lines = append(lines, "")
+	lines = append(lines, dim.Render("  Content is community-contributed and may be AI-assisted."))
+	lines = append(lines, dim.Render("  It may contain errors. Not a substitute for professional"))
+	lines = append(lines, dim.Render("  training. Contributions and corrections are welcome."))
 
 	content := strings.Join(lines, "\n")
 

@@ -11,7 +11,8 @@ func init() {
 		ID:      1,
 		Title:   "What is an AI Coding Assistant?",
 		Tier:    types.Beginner,
-		Summary: "Understanding how AI assistants help you write code",
+		Summary:    "Understanding how AI assistants help you write code",
+		SourceFile: "internal/content/beginner/01_what_is_ai.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewAgentLoopModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "What is an AI Coding Assistant?"},

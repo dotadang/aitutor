@@ -11,7 +11,8 @@ func init() {
 		ID:      12,
 		Title:   "Git Worktrees",
 		Tier:    types.Advanced,
-		Summary: "Isolated workspaces for parallel development",
+		Summary:    "Isolated workspaces for parallel development",
+		SourceFile: "internal/content/advanced/12_git_worktrees.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewWorktreeSimModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Git Worktrees"},

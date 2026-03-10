@@ -11,7 +11,8 @@ func init() {
 		ID:      3,
 		Title:   "Tools",
 		Tier:    types.Beginner,
-		Summary: "How AI assistants interact with your codebase",
+		Summary:    "How AI assistants interact with your codebase",
+		SourceFile: "internal/content/beginner/03_tools.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewToolFlowModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Tools: The AI's Hands"},

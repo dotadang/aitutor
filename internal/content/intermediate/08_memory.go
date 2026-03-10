@@ -11,7 +11,8 @@ func init() {
 		ID:      8,
 		Title:   "Memory & Persistence",
 		Tier:    types.Intermediate,
-		Summary: "How AI assistants remember across sessions",
+		Summary:    "How AI assistants remember across sessions",
+		SourceFile: "internal/content/intermediate/08_memory.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewMemorySortModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Memory & Persistence"},

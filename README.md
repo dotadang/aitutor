@@ -133,6 +133,10 @@ No other external dependencies.
 
 Something missing? Something wrong? Feel free to open an issue or submit a PR at [github.com/naorpeled/aitutor](https://github.com/naorpeled/aitutor).
 
+## Disclaimer
+
+Content is community-contributed and may be AI-assisted. While we strive for accuracy, it may contain errors. This is not a substitute for professional training. Contributions and corrections are welcome.
+
 ## License
 
 MIT

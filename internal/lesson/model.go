@@ -185,9 +185,13 @@ func (m Model) View() string {
 	case PhaseQuiz:
 		content = m.quizModel.View()
 	case PhaseComplete:
-		msg := "✓ Lesson Complete!\n\nPress → or n for next lesson\nPress ← or p for previous lesson"
+		editURL := ""
+		if m.Def.SourceFile != "" {
+			editURL = "\n\nEdit this lesson → github.com/naorpeled/aitutor/edit/main/" + m.Def.SourceFile
+		}
+		msg := "Lesson Complete!\n\nPress → or n for next lesson\nPress ← or p for previous lesson" + editURL
 		if m.IsLast {
-			msg = "✓ Lesson Complete!\n\nYou've finished the last lesson!\nPress ← or p to revisit previous lessons"
+			msg = "Lesson Complete!\n\nYou've finished the last lesson!\nPress ← or p to revisit previous lessons" + editURL
 		}
 		content = lipgloss.NewStyle().
 			Foreground(ui.ColorBeginner).

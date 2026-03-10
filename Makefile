@@ -1,13 +1,15 @@
 .PHONY: build run install clean
 
+VERSION ?= dev
+
 build:
-	go build -o aitutor .
+	go build -ldflags "-X main.Version=$(VERSION)" -o aitutor .
 
 run:
 	go run .
 
 install:
-	go install .
+	go install -ldflags "-X main.Version=$(VERSION)" .
 
 clean:
 	rm -f aitutor

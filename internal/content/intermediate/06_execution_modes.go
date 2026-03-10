@@ -11,7 +11,8 @@ func init() {
 		ID:      6,
 		Title:   "Execution Modes",
 		Tier:    types.Intermediate,
-		Summary: "Plan mode vs execution mode",
+		Summary:    "Plan mode vs execution mode",
+		SourceFile: "internal/content/intermediate/06_execution_modes.go",
 		VizBuilder: func(w, h int) interface{} { return viz.NewModePickerModel(w, h) },
 		Theory: []types.TheoryBlock{
 			{Kind: types.Heading, Content: "Execution Modes"},
