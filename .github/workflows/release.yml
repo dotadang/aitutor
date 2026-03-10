@@ -1,9 +1,12 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g., 0.1.1)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -16,6 +19,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update npm version
+        run: |
+          npm version ${{ inputs.version }} --no-git-tag-version
+          git add package.json
+          git commit -m "Bump version to ${{ inputs.version }}" || true
+          git push
+
+      - name: Create and push tag
+        run: |
+          git tag "v${{ inputs.version }}"
+          git push origin "v${{ inputs.version }}"
 
       - uses: actions/setup-go@v5
         with:
