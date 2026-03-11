@@ -408,7 +408,7 @@
       </div>
       <div class="install-body" onclick="copyInstall()" title="Click to copy">
         <span class="prompt">$</span>
-        <code id="installCmd">npx @aitutor/cli</code>
+        <code id="installCmd">npx @aitutor/cli@latest</code>
         <button class="copy-btn" id="copyBtn">Copy</button>
       </div>
     </div>
@@ -509,7 +509,7 @@
 
   <script>
     var tabs = {
-      npm:  { cmd: 'npx @aitutor/cli', note: 'No install needed \u2014 runs directly.' },
+      npm:  { cmd: 'npx @aitutor/cli@latest', note: 'No install needed \u2014 runs directly.' },
       brew: { cmd: 'brew install naorpeled/tap/aitutor', note: 'Then run <code style="color:var(--green);background:rgba(158,206,106,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(158,206,106,0.15);font-size:13px;">aitutor</code> to start.' },
       go:   { cmd: 'go install github.com/naorpeled/aitutor@latest', note: 'Requires Go 1.23+. Then run <code style="color:var(--green);background:rgba(158,206,106,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(158,206,106,0.15);font-size:13px;">aitutor</code> to start.' }
     };

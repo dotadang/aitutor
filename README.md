@@ -13,7 +13,7 @@ Interactive terminal-based tutorial for AI coding concepts. Learn context window
 No setup needed — just run:
 
 ```bash
-npx @aitutor/cli
+npx @aitutor/cli@latest
 ```
 
 Or install globally:
