@@ -3,13 +3,13 @@
 VERSION ?= dev
 
 build:
-	go build -ldflags "-X main.Version=$(VERSION)" -o aitutor .
+	go build -ldflags "-X main.version=$(VERSION)" -o aitutor .
 
 run:
 	go run .
 
 install:
-	go install -ldflags "-X main.Version=$(VERSION)" .
+	go install -ldflags "-X main.version=$(VERSION)" .
 
 clean:
 	rm -f aitutor
