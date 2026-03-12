@@ -11,7 +11,7 @@ builds:
     ldflags:
       - -s -w -X main.version={{.Version}}
 
-brews:
+homebrew_casks:
   - repository:
       owner: naorpeled
       name: homebrew-tap
@@ -19,5 +19,3 @@ brews:
     homepage: "https://github.com/naorpeled/aitutor"
     description: "Interactive terminal tutorial for AI coding concepts"
     license: "MIT"
-    install: |
-      bin.install "aitutor"
