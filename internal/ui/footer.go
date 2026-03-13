@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/naorpeled/aitutor/internal/i18n"
 )
 
 // FooterModel renders the bottom bar with key hints.
@@ -35,7 +36,7 @@ func (f FooterModel) View() string {
 	var parts []string
 	for _, b := range f.Bindings {
 		key := FooterKeyStyle.Render(b.Key)
-		desc := FooterDescStyle.Render(b.Desc)
+		desc := FooterDescStyle.Render(i18n.Text(b.Desc))
 		parts = append(parts, fmt.Sprintf("%s %s", key, desc))
 	}
 	content := strings.Join(parts, lipgloss.NewStyle().Foreground(ColorDim).Render("  │  "))

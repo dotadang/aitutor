@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/naorpeled/aitutor/internal/i18n"
 	"github.com/naorpeled/aitutor/pkg/types"
 )
 
@@ -29,12 +30,12 @@ func (h HeaderModel) ViewWithProgress(progressBar string) string {
 	tierBadge := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(tierColor).
-		Render(fmt.Sprintf(" %s ", h.Tier))
+		Render(fmt.Sprintf(" %s ", i18n.TierLabel(h.Tier)))
 
 	title := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(ColorBright).
-		Render(h.LessonTitle)
+		Render(i18n.Text(h.LessonTitle))
 
 	left := fmt.Sprintf("%s  %s", tierBadge, title)
 

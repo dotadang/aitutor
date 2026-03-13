@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/naorpeled/aitutor/internal/i18n"
 	"github.com/naorpeled/aitutor/pkg/types"
 )
 
@@ -20,7 +21,7 @@ type FillBlankModel struct {
 
 func NewFillBlank(q types.QuizQuestion) FillBlankModel {
 	ti := textinput.New()
-	ti.Placeholder = "Type your answer..."
+	ti.Placeholder = i18n.Text("Type your answer...")
 	ti.Focus()
 	ti.Width = 40
 	return FillBlankModel{Question: q, input: ti}
@@ -40,8 +41,13 @@ func (m FillBlankModel) Update(msg tea.Msg) (FillBlankModel, tea.Cmd) {
 		if key.Matches(msg, key.NewBinding(key.WithKeys("enter"))) {
 			m.answered = true
 			answer := strings.TrimSpace(strings.ToLower(m.input.Value()))
-			expected := strings.TrimSpace(strings.ToLower(m.Question.Answer))
-			m.correct = answer == expected
+			for _, variant := range i18n.AnswerVariants(m.Question.Answer) {
+				expected := strings.TrimSpace(strings.ToLower(variant))
+				if answer == expected {
+					m.correct = true
+					break
+				}
+			}
 			return m, nil
 		}
 	}
@@ -58,7 +64,7 @@ func (m FillBlankModel) View() string {
 	promptStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f9fafb"))
 
 	var lines []string
-	lines = append(lines, promptStyle.Render("  "+m.Question.Prompt))
+	lines = append(lines, promptStyle.Render("  "+i18n.Text(m.Question.Prompt)))
 	lines = append(lines, "")
 	lines = append(lines, "  "+m.input.View())
 
@@ -68,7 +74,7 @@ func (m FillBlankModel) View() string {
 			lines = append(lines, RenderCorrect(m.Question.Explanation))
 		} else {
 			expected := lipgloss.NewStyle().Foreground(lipgloss.Color("#4ade80")).Bold(true).
-				Render("  Answer: " + m.Question.Answer)
+				Render(i18n.Text("  Answer: ") + i18n.Text(m.Question.Answer))
 			lines = append(lines, RenderIncorrect(m.Question.Explanation))
 			lines = append(lines, expected)
 		}

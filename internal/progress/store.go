@@ -15,6 +15,7 @@ const (
 type ProgressData struct {
 	CompletedLessons map[int]bool `json:"completed_lessons"`
 	LastLessonIdx    int          `json:"last_lesson_idx"`
+	Language         string       `json:"language,omitempty"`
 }
 
 func progressPath() (string, error) {

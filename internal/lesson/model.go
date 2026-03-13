@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/naorpeled/aitutor/internal/i18n"
 	"github.com/naorpeled/aitutor/internal/quiz"
 	"github.com/naorpeled/aitutor/internal/ui"
 	"github.com/naorpeled/aitutor/internal/viz"
@@ -23,13 +24,13 @@ const (
 func (p Phase) String() string {
 	switch p {
 	case PhaseTheory:
-		return "Theory"
+		return i18n.Text("Theory")
 	case PhaseViz:
-		return "Visualization"
+		return i18n.Text("Visualization")
 	case PhaseQuiz:
-		return "Quiz"
+		return i18n.Text("Quiz")
 	case PhaseComplete:
-		return "Complete"
+		return i18n.Text("Complete")
 	default:
 		return ""
 	}
@@ -180,18 +181,18 @@ func (m Model) View() string {
 		if m.vizModel != nil {
 			content = m.vizModel.View()
 		} else {
-			content = "No visualization available"
+			content = i18n.Text("No visualization available")
 		}
 	case PhaseQuiz:
 		content = m.quizModel.View()
 	case PhaseComplete:
 		editURL := ""
 		if m.Def.SourceFile != "" {
-			editURL = "\n\nEdit this lesson → github.com/naorpeled/aitutor/edit/main/" + m.Def.SourceFile
+			editURL = "\n\n" + i18n.Text("Edit this lesson → github.com/naorpeled/aitutor/edit/main/") + m.Def.SourceFile
 		}
-		msg := "Lesson Complete!\n\nPress → or n for next lesson\nPress ← or p for previous lesson" + editURL
+		msg := i18n.Text("Lesson Complete!\n\nPress → or n for next lesson\nPress ← or p for previous lesson") + editURL
 		if m.IsLast {
-			msg = "Lesson Complete!\n\nYou've finished the last lesson!\nPress ← or p to revisit previous lessons" + editURL
+			msg = i18n.Text("Lesson Complete!\n\nYou've finished the last lesson!\nPress ← or p to revisit previous lessons") + editURL
 		}
 		content = lipgloss.NewStyle().
 			Foreground(ui.ColorBeginner).

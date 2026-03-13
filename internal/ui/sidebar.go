@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/naorpeled/aitutor/internal/i18n"
 	"github.com/naorpeled/aitutor/pkg/types"
 )
 
@@ -35,7 +36,7 @@ func (s SidebarModel) View() string {
 				Bold(true).
 				Foreground(tierColor).
 				MarginTop(1).
-				Render(fmt.Sprintf("── %s ──", currentTier))
+				Render(fmt.Sprintf("── %s ──", i18n.TierLabel(currentTier)))
 			items = append(items, header)
 		}
 
@@ -55,7 +56,7 @@ func (s SidebarModel) View() string {
 			}
 		}
 
-		title := l.Title
+		title := i18n.Text(l.Title)
 		maxLen := s.Width - 6
 		if maxLen > 0 && len(title) > maxLen {
 			title = title[:maxLen-1] + "…"

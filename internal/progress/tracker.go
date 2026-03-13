@@ -50,6 +50,18 @@ func (t *Tracker) LastLessonIdx() int {
 	return t.data.LastLessonIdx
 }
 
+// Language returns the persisted display language.
+func (t *Tracker) Language() string {
+	return t.data.Language
+}
+
+// SetLanguage records the display language.
+func (t *Tracker) SetLanguage(lang string) {
+	t.data.Language = lang
+	t.dirty = true
+	t.save()
+}
+
 // CompletedMap returns the completed lessons map (for sidebar).
 func (t *Tracker) CompletedMap() map[int]bool {
 	return t.data.CompletedLessons

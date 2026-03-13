@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/naorpeled/aitutor/internal/i18n"
 	"github.com/naorpeled/aitutor/pkg/types"
 )
 
@@ -83,7 +84,7 @@ func (m MultipleChoiceModel) View() string {
 	wrongMark := lipgloss.NewStyle().Foreground(lipgloss.Color("#f87171")).Bold(true)
 
 	var lines []string
-	lines = append(lines, promptStyle.Render("  "+m.Question.Prompt))
+	lines = append(lines, promptStyle.Render("  "+i18n.Text(m.Question.Prompt)))
 	lines = append(lines, "")
 
 	for i, choice := range m.Question.Choices {
@@ -103,7 +104,7 @@ func (m MultipleChoiceModel) View() string {
 			style = selectedStyle
 		}
 
-		lines = append(lines, prefix+style.Render(choice))
+		lines = append(lines, prefix+style.Render(i18n.Text(choice)))
 	}
 
 	if m.answered {

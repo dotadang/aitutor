@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/naorpeled/aitutor/internal/i18n"
 	"github.com/naorpeled/aitutor/pkg/types"
 )
 
@@ -84,8 +85,8 @@ func (m OrderingModel) View() string {
 	dim := lipgloss.NewStyle().Foreground(lipgloss.Color("#6b7280"))
 
 	var lines []string
-	lines = append(lines, promptStyle.Render("  "+m.Question.Prompt))
-	lines = append(lines, dim.Render("  (↑/↓ navigate, Shift+J/K to reorder, Enter to submit)"))
+	lines = append(lines, promptStyle.Render("  "+i18n.Text(m.Question.Prompt)))
+	lines = append(lines, dim.Render(i18n.Text("  (↑/↓ navigate, Shift+J/K to reorder, Enter to submit)")))
 	lines = append(lines, "")
 
 	for i, idx := range m.order {
@@ -95,7 +96,7 @@ func (m OrderingModel) View() string {
 			style = selectedStyle
 			prefix = fmt.Sprintf("  %d. ▸ ", i+1)
 		}
-		lines = append(lines, prefix+style.Render(m.Question.Choices[idx]))
+		lines = append(lines, prefix+style.Render(i18n.Text(m.Question.Choices[idx])))
 	}
 
 	if m.answered {
@@ -106,9 +107,9 @@ func (m OrderingModel) View() string {
 			lines = append(lines, RenderIncorrect(m.Question.Explanation))
 			lines = append(lines, "")
 			correct := lipgloss.NewStyle().Foreground(lipgloss.Color("#4ade80"))
-			lines = append(lines, correct.Render("  Correct order:"))
+			lines = append(lines, correct.Render(i18n.Text("  Correct order:")))
 			for i, choice := range m.Question.Choices {
-				lines = append(lines, correct.Render(fmt.Sprintf("    %d. %s", i+1, choice)))
+				lines = append(lines, correct.Render(fmt.Sprintf("    %d. %s", i+1, i18n.Text(choice))))
 			}
 		}
 	}

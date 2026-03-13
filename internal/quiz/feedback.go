@@ -2,6 +2,7 @@ package quiz
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/naorpeled/aitutor/internal/i18n"
 )
 
 var (
@@ -19,17 +20,17 @@ var (
 )
 
 func RenderCorrect(explanation string) string {
-	result := correctStyle.Render("  ✓ Correct!")
+	result := correctStyle.Render(i18n.Text("  ✓ Correct!"))
 	if explanation != "" {
-		result += "\n" + explanationStyle.Render(explanation)
+		result += "\n" + explanationStyle.Render(i18n.Text(explanation))
 	}
 	return result
 }
 
 func RenderIncorrect(explanation string) string {
-	result := incorrectStyle.Render("  ✗ Incorrect")
+	result := incorrectStyle.Render(i18n.Text("  ✗ Incorrect"))
 	if explanation != "" {
-		result += "\n" + explanationStyle.Render(explanation)
+		result += "\n" + explanationStyle.Render(i18n.Text(explanation))
 	}
 	return result
 }

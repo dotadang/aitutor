@@ -8,6 +8,7 @@ type KeyMap struct {
 	Tab       key.Binding
 	Next      key.Binding
 	Prev      key.Binding
+	Language  key.Binding
 	Advance      key.Binding
 	AdvancePhase key.Binding
 	Back         key.Binding
@@ -35,6 +36,10 @@ var Keys = KeyMap{
 	Prev: key.NewBinding(
 		key.WithKeys("p"),
 		key.WithHelp("p", "previous lesson"),
+	),
+	Language: key.NewBinding(
+		key.WithKeys("l"),
+		key.WithHelp("l", "language"),
 	),
 	Advance: key.NewBinding(
 		key.WithKeys("enter"),

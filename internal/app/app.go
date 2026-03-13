@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/naorpeled/aitutor/internal/i18n"
 	"github.com/naorpeled/aitutor/internal/lesson"
 	"github.com/naorpeled/aitutor/internal/progress"
 	"github.com/naorpeled/aitutor/internal/ui"
@@ -24,8 +25,11 @@ type AppModel struct {
 	ready       bool
 	showWelcome bool
 	showHelp    bool
+	showLanguage bool
 	version     string
 	anim        neuralNet
+	language      i18n.Language
+	languageCursor int
 
 	lessons     []types.LessonDef
 	lessonIdx   int
@@ -40,6 +44,7 @@ func NewAppModel(version string) AppModel {
 		footer:      ui.NewFooterModel(),
 		sidebarOpen: false,
 		showWelcome: true,
+		language:    i18n.English,
 		version:     version,
 	}
 }
@@ -55,7 +60,10 @@ func (m *AppModel) loadLessons() {
 		m.sidebar = ui.NewSidebarModel()
 		m.sidebar.Lessons = m.lessons
 		m.tracker = progress.NewTracker(len(m.lessons))
+		m.language = i18n.NormalizeLanguage(m.tracker.Language())
+		i18n.SetLanguage(m.language)
 		m.sidebar.Completed = m.tracker.CompletedMap()
+		m.syncLanguageCursor()
 
 		// Resume from last lesson
 		startIdx := m.tracker.LastLessonIdx()
@@ -81,6 +89,25 @@ func (m *AppModel) selectLesson(idx int) {
 
 	if m.tracker != nil {
 		m.tracker.SetLastLesson(idx)
+	}
+}
+
+func (m *AppModel) syncLanguageCursor() {
+	for idx, lang := range i18n.Languages() {
+		if lang == m.language {
+			m.languageCursor = idx
+			return
+		}
+	}
+	m.languageCursor = 0
+}
+
+func (m *AppModel) applyLanguage(lang i18n.Language) {
+	m.language = i18n.NormalizeLanguage(string(lang))
+	i18n.SetLanguage(m.language)
+	m.syncLanguageCursor()
+	if m.tracker != nil {
+		m.tracker.SetLanguage(string(m.language))
 	}
 }
 
@@ -125,6 +152,13 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if key.Matches(msg, Keys.Quit) {
 				return m, tea.Quit
 			}
+			if key.Matches(msg, Keys.Language) {
+				m.showLanguage = true
+				return m, nil
+			}
+			if m.showLanguage {
+				return m.updateLanguageSelector(msg)
+			}
 			m.showWelcome = false
 			return m, nil
 		}
@@ -135,11 +169,18 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
+		if m.showLanguage {
+			return m.updateLanguageSelector(msg)
+		}
+
 		switch {
 		case key.Matches(msg, Keys.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, Keys.Help):
 			m.showHelp = true
+			return m, nil
+		case key.Matches(msg, Keys.Language):
+			m.showLanguage = true
 			return m, nil
 		case key.Matches(msg, Keys.Tab):
 			m.sidebarOpen = !m.sidebarOpen
@@ -202,6 +243,10 @@ func (m AppModel) View() string {
 		return m.viewWelcome()
 	}
 
+	if m.showLanguage {
+		return m.viewLanguageSelector()
+	}
+
 	if m.showHelp {
 		return m.viewHelp()
 	}
@@ -217,22 +262,22 @@ func (m AppModel) View() string {
 	case lesson.PhaseTheory:
 		m.footer.Bindings = []ui.KeyHint{
 			{Key: "q", Desc: "quit"}, {Key: "Tab", Desc: "sidebar"}, {Key: "n/p", Desc: "next/prev lesson"},
-			{Key: "→/Enter", Desc: "next phase"}, {Key: "↑/↓", Desc: "scroll"}, {Key: "?", Desc: "help"},
+			{Key: "→/Enter", Desc: "next phase"}, {Key: "↑/↓", Desc: "scroll"}, {Key: "l", Desc: "language"},
 		}
 	case lesson.PhaseViz:
 		m.footer.Bindings = []ui.KeyHint{
 			{Key: "q", Desc: "quit"}, {Key: "Tab", Desc: "sidebar"}, {Key: "n/p", Desc: "next/prev lesson"},
-			{Key: "←/→", Desc: "prev/next phase"}, {Key: "Enter/Space", Desc: "interact"}, {Key: "?", Desc: "help"},
+			{Key: "←/→", Desc: "prev/next phase"}, {Key: "Enter/Space", Desc: "interact"}, {Key: "l", Desc: "language"},
 		}
 	case lesson.PhaseQuiz:
 		m.footer.Bindings = []ui.KeyHint{
 			{Key: "q", Desc: "quit"}, {Key: "Tab", Desc: "sidebar"}, {Key: "n/p", Desc: "next/prev lesson"},
-			{Key: "←", Desc: "prev phase"}, {Key: "1-4", Desc: "answer"}, {Key: "?", Desc: "help"},
+			{Key: "←", Desc: "prev phase"}, {Key: "1-4", Desc: "answer"}, {Key: "l", Desc: "language"},
 		}
 	case lesson.PhaseComplete:
 		m.footer.Bindings = []ui.KeyHint{
 			{Key: "q", Desc: "quit"}, {Key: "Tab", Desc: "sidebar"}, {Key: "n", Desc: "next lesson"},
-			{Key: "←", Desc: "prev phase"}, {Key: "?", Desc: "help"},
+			{Key: "←", Desc: "prev phase"}, {Key: "l", Desc: "language"},
 		}
 	}
 
@@ -291,22 +336,22 @@ func (m AppModel) viewWelcome() string {
 	}
 	lines = append(lines, logo)
 	lines = append(lines, "")
-	tagline := "Interactive AI Coding Concepts Tutorial"
+	tagline := i18n.Text("Interactive AI Coding Concepts Tutorial")
 	visibleLen := m.anim.frame * 2
 	if visibleLen > len(tagline) {
 		visibleLen = len(tagline)
 	}
 	lines = append(lines, bright.Render("  "+tagline[:visibleLen]))
 	lines = append(lines, "")
-	lines = append(lines, dim.Render("  Learn AI-assisted development through hands-on lessons."))
-	lines = append(lines, dim.Render("  Each lesson has theory, an interactive visualization, and a quiz."))
+	lines = append(lines, dim.Render(i18n.Text("  Learn AI-assisted development through hands-on lessons.")))
+	lines = append(lines, dim.Render(i18n.Text("  Each lesson has theory, an interactive visualization, and a quiz.")))
 	lines = append(lines, "")
 	lines = append(lines, fmt.Sprintf("  %s  Beginner      %s",
-		green.Render("*"), dim.Render("Context windows, tools, prompts")))
+		green.Render("*"), dim.Render(i18n.Text("Context windows, tools, prompts"))))
 	lines = append(lines, fmt.Sprintf("  %s  Intermediate  %s",
-		yellow.Render("*"), dim.Render("CLAUDE.md, hooks, memory, modes")))
+		yellow.Render("*"), dim.Render(i18n.Text("CLAUDE.md, hooks, memory, modes"))))
 	lines = append(lines, fmt.Sprintf("  %s  Advanced      %s",
-		red.Render("*"), dim.Render("MCP, skills, subagents, worktrees")))
+		red.Render("*"), dim.Render(i18n.Text("MCP, skills, subagents, worktrees"))))
 	lines = append(lines, "")
 
 	completedCount := 0
@@ -314,20 +359,22 @@ func (m AppModel) viewWelcome() string {
 		completedCount = m.tracker.CompletedCount()
 	}
 	if completedCount > 0 {
-		lines = append(lines, green.Render(fmt.Sprintf("  Progress: %d/%d lessons completed", completedCount, len(m.lessons))))
+		lines = append(lines, green.Render(i18n.Textf("  Progress: %d/%d lessons completed", completedCount, len(m.lessons))))
 		lines = append(lines, "")
 	}
 
-	lines = append(lines, accent.Render("  Press any key to start"))
-	lines = append(lines, dim.Render("  Press q to quit"))
+	lines = append(lines, accent.Render(i18n.Text("  Press any key to start")))
+	lines = append(lines, dim.Render(i18n.Text("  Press q to quit")))
+	lines = append(lines, dim.Render(i18n.Textf("  Current language: %s", i18n.LanguageName(m.language))))
+	lines = append(lines, dim.Render("  [l] " + i18n.Text("Open language selector")))
 	lines = append(lines, "")
 	lines = append(lines, dim.Render("  "+m.version))
 	lines = append(lines, "")
-	lines = append(lines, dim.Render("  Contribute → github.com/naorpeled/aitutor"))
+	lines = append(lines, dim.Render(i18n.Text("  Contribute → github.com/naorpeled/aitutor")))
 	lines = append(lines, "")
-	lines = append(lines, dim.Render("  Content is community-contributed and may be AI-assisted."))
-	lines = append(lines, dim.Render("  It may contain errors. Not a substitute for professional"))
-	lines = append(lines, dim.Render("  training. Contributions and corrections are welcome."))
+	lines = append(lines, dim.Render(i18n.Text("  Content is community-contributed and may be AI-assisted.")))
+	lines = append(lines, dim.Render(i18n.Text("  It may contain errors. Not a substitute for professional")))
+	lines = append(lines, dim.Render(i18n.Text("  training. Contributions and corrections are welcome.")))
 
 	content := strings.Join(lines, "\n")
 
@@ -343,29 +390,30 @@ func (m AppModel) viewHelp() string {
 	keyStyle := lipgloss.NewStyle().Foreground(ui.ColorHighlight).Bold(true).Width(16)
 
 	var lines []string
-	lines = append(lines, accent.Render("  Help"))
+	lines = append(lines, accent.Render(i18n.Text("  Help")))
 	lines = append(lines, "")
-	lines = append(lines, bright.Render("  Navigation"))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("Tab"), dim.Render("Toggle sidebar")))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("n / p"), dim.Render("Next / previous lesson")))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("Up/Down  j/k"), dim.Render("Scroll / navigate")))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("q  Ctrl+C"), dim.Render("Quit")))
+	lines = append(lines, bright.Render(i18n.Text("  Navigation")))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("Tab"), dim.Render(i18n.Text("Toggle sidebar"))))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("n / p"), dim.Render(i18n.Text("Next / previous lesson"))))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("Up/Down  j/k"), dim.Render(i18n.Text("Scroll / navigate"))))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("l"), dim.Render(i18n.Text("  Choose display language"))))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("q  Ctrl+C"), dim.Render(i18n.Text("Quit"))))
 	lines = append(lines, "")
-	lines = append(lines, bright.Render("  Lesson Phases"))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("→  / Enter"), dim.Render("Advance to next phase")))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("←  / Bksp"), dim.Render("Go back to previous phase")))
+	lines = append(lines, bright.Render(i18n.Text("  Lesson Phases")))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("→  / Enter"), dim.Render(i18n.Text("Advance to next phase"))))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("←  / Bksp"), dim.Render(i18n.Text("Go back to previous phase"))))
 	lines = append(lines, "")
-	lines = append(lines, bright.Render("  Visualizations"))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("Enter / Space"), dim.Render("Interact with visualization")))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("r"), dim.Render("Reset visualization")))
+	lines = append(lines, bright.Render(i18n.Text("  Visualizations")))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("Enter / Space"), dim.Render(i18n.Text("Interact with visualization"))))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("r"), dim.Render(i18n.Text("Reset visualization"))))
 	lines = append(lines, "")
-	lines = append(lines, bright.Render("  Quiz"))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("1-4"), dim.Render("Select answer (multiple choice)")))
-	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("Enter"), dim.Render("Submit answer")))
+	lines = append(lines, bright.Render(i18n.Text("  Quiz")))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("1-4"), dim.Render(i18n.Text("Select answer (multiple choice)"))))
+	lines = append(lines, fmt.Sprintf("  %s %s", keyStyle.Render("Enter"), dim.Render(i18n.Text("Submit answer"))))
 	lines = append(lines, "")
-	lines = append(lines, bright.Render("  Each lesson follows: Theory -> Visualization -> Quiz"))
+	lines = append(lines, bright.Render(i18n.Text("  Each lesson follows: Theory -> Visualization -> Quiz")))
 	lines = append(lines, "")
-	lines = append(lines, dim.Render("  Press any key to close"))
+	lines = append(lines, dim.Render(i18n.Text("  Press any key to close")))
 
 	content := strings.Join(lines, "\n")
 
@@ -389,31 +437,31 @@ func (m AppModel) viewCourseComplete() string {
 
 	var lines []string
 	lines = append(lines, "")
-	lines = append(lines, green.Render("  Congratulations!"))
+	lines = append(lines, green.Render(i18n.Text("  Congratulations!")))
 	lines = append(lines, "")
-	lines = append(lines, bright.Render(fmt.Sprintf("  You've completed all %d lessons.", len(m.lessons))))
+	lines = append(lines, bright.Render(i18n.Textf("  You've completed all %d lessons.", len(m.lessons))))
 	lines = append(lines, "")
-	lines = append(lines, dim.Render("  You now understand the core concepts behind"))
-	lines = append(lines, dim.Render("  AI-assisted development: context windows, tools,"))
-	lines = append(lines, dim.Render("  MCP, subagents, batch execution, and more."))
+	lines = append(lines, dim.Render(i18n.Text("  You now understand the core concepts behind")))
+	lines = append(lines, dim.Render(i18n.Text("  AI-assisted development: context windows, tools,")))
+	lines = append(lines, dim.Render(i18n.Text("  MCP, subagents, batch execution, and more.")))
 	lines = append(lines, "")
-	lines = append(lines, accent.Render("  ── What's Next? ──"))
+	lines = append(lines, accent.Render(i18n.Text("  ── What's Next? ──")))
 	lines = append(lines, "")
-	lines = append(lines, dim.Render("  Put these concepts into practice! Try using an"))
-	lines = append(lines, dim.Render("  AI coding assistant with your own projects and"))
-	lines = append(lines, dim.Render("  see how these patterns apply in real workflows."))
+	lines = append(lines, dim.Render(i18n.Text("  Put these concepts into practice! Try using an")))
+	lines = append(lines, dim.Render(i18n.Text("  AI coding assistant with your own projects and")))
+	lines = append(lines, dim.Render(i18n.Text("  see how these patterns apply in real workflows.")))
 	lines = append(lines, "")
-	lines = append(lines, accent.Render("  ── Contribute ──"))
+	lines = append(lines, accent.Render(i18n.Text("  ── Contribute ──")))
 	lines = append(lines, "")
-	lines = append(lines, dim.Render("  Something missing? Something wrong? We'd love your help."))
-	lines = append(lines, dim.Render("  Open an issue or submit a PR:"))
+	lines = append(lines, dim.Render(i18n.Text("  Something missing? Something wrong? We'd love your help.")))
+	lines = append(lines, dim.Render(i18n.Text("  Open an issue or submit a PR:")))
 	lines = append(lines, "")
 	lines = append(lines, "  "+link.Render("github.com/naorpeled/aitutor"))
 	lines = append(lines, "")
-	lines = append(lines, dim.Render("  Whether it's a new lesson idea, a bug fix, or"))
-	lines = append(lines, dim.Render("  better explanations — all contributions welcome."))
+	lines = append(lines, dim.Render(i18n.Text("  Whether it's a new lesson idea, a bug fix, or")))
+	lines = append(lines, dim.Render(i18n.Text("  better explanations — all contributions welcome.")))
 	lines = append(lines, "")
-	lines = append(lines, dim.Render("  Press p to revisit lessons  |  q to quit"))
+	lines = append(lines, dim.Render(i18n.Text("  Press p to revisit lessons  |  q to quit")))
 
 	content := strings.Join(lines, "\n")
 
@@ -426,4 +474,59 @@ func (m AppModel) viewCourseComplete() string {
 	return lipgloss.Place(m.width, m.height,
 		lipgloss.Center, lipgloss.Center,
 		box)
+}
+
+func (m AppModel) viewLanguageSelector() string {
+	accent := lipgloss.NewStyle().Foreground(ui.ColorAccent).Bold(true)
+	bright := lipgloss.NewStyle().Foreground(ui.ColorBright).Bold(true)
+	dim := lipgloss.NewStyle().Foreground(ui.ColorMuted)
+	highlight := lipgloss.NewStyle().Foreground(ui.ColorHighlight).Bold(true)
+
+	var lines []string
+	lines = append(lines, accent.Render(i18n.Text("  Language")))
+	lines = append(lines, "")
+	lines = append(lines, dim.Render(i18n.Text("  Choose display language")))
+	lines = append(lines, "")
+	for idx, lang := range i18n.Languages() {
+		prefix := "  "
+		style := dim
+		if idx == m.languageCursor {
+			prefix = "▸ "
+			style = highlight
+		}
+		lines = append(lines, prefix+style.Render(i18n.LanguageName(lang)))
+	}
+	lines = append(lines, "")
+	lines = append(lines, dim.Render(i18n.Text("  [↑/↓] Navigate  [Enter] Apply  [Esc] Close")))
+
+	box := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(ui.ColorAccent).
+		Padding(1, 2).
+		Render(strings.Join(lines, "\n"))
+
+	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, box)
+}
+
+func (m AppModel) updateLanguageSelector(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "esc", "backspace":
+		m.showLanguage = false
+		return m, nil
+	case "up", "k":
+		if m.languageCursor > 0 {
+			m.languageCursor--
+		}
+		return m, nil
+	case "down", "j":
+		if m.languageCursor < len(i18n.Languages())-1 {
+			m.languageCursor++
+		}
+		return m, nil
+	case "enter":
+		m.applyLanguage(i18n.Languages()[m.languageCursor])
+		m.showLanguage = false
+		return m, nil
+	}
+	return m, nil
 }
