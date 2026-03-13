@@ -1,7 +1,6 @@
 package quiz
 
 import (
-	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -56,6 +55,8 @@ func (m *Model) loadQuestion(idx int) {
 
 func (m Model) Init() tea.Cmd { return nil }
 
+func (m Model) Done() bool { return m.done }
+
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	if m.done || len(m.questions) == 0 {
 		return m, nil
@@ -78,10 +79,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if wasAnswered {
 			if kmsg, ok := msg.(tea.KeyMsg); ok && kmsg.String() == "enter" {
 				m.advanceQuestion()
+				if m.done {
+					return m, func() tea.Msg { return QuizCompleteMsg{Score: m.score, Total: len(m.questions)} }
+				}
 			}
 		}
 		return m, cmd
-
 	case types.FillBlank:
 		wasAnswered := m.fbModel.IsAnswered()
 		var cmd tea.Cmd
@@ -95,10 +98,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if wasAnswered {
 			if kmsg, ok := msg.(tea.KeyMsg); ok && kmsg.String() == "enter" {
 				m.advanceQuestion()
+				if m.done {
+					return m, func() tea.Msg { return QuizCompleteMsg{Score: m.score, Total: len(m.questions)} }
+				}
 			}
 		}
 		return m, cmd
-
 	case types.Ordering:
 		wasAnswered := m.orModel.IsAnswered()
 		var cmd tea.Cmd
@@ -112,6 +117,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if wasAnswered {
 			if kmsg, ok := msg.(tea.KeyMsg); ok && kmsg.String() == "enter" {
 				m.advanceQuestion()
+				if m.done {
+					return m, func() tea.Msg { return QuizCompleteMsg{Score: m.score, Total: len(m.questions)} }
+				}
 			}
 		}
 		return m, cmd
@@ -121,12 +129,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m *Model) advanceQuestion() {
-	m.loadQuestion(m.current + 1)
+	next := m.current + 1
+	if next >= len(m.questions) {
+		m.done = true
+		return
+	}
+	m.loadQuestion(next)
 }
-
-func (m Model) Done() bool { return m.done }
-func (m Model) Score() int { return m.score }
-func (m Model) Total() int { return len(m.questions) }
 
 func (m Model) View() string {
 	if len(m.questions) == 0 {
@@ -134,15 +143,9 @@ func (m Model) View() string {
 	}
 
 	if m.done {
-		scoreColor := lipgloss.Color("#4ade80")
-		if m.score < len(m.questions) {
-			scoreColor = lipgloss.Color("#facc15")
-		}
-		if m.score == 0 {
-			scoreColor = lipgloss.Color("#f87171")
-		}
-
-		scoreStyle := lipgloss.NewStyle().Foreground(scoreColor).Bold(true)
+		scoreStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#4ade80")).
+			Bold(true)
 		dim := lipgloss.NewStyle().Foreground(lipgloss.Color("#6b7280"))
 
 		var lines []string

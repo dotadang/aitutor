@@ -478,7 +478,6 @@ func (m AppModel) viewCourseComplete() string {
 
 func (m AppModel) viewLanguageSelector() string {
 	accent := lipgloss.NewStyle().Foreground(ui.ColorAccent).Bold(true)
-	bright := lipgloss.NewStyle().Foreground(ui.ColorBright).Bold(true)
 	dim := lipgloss.NewStyle().Foreground(ui.ColorMuted)
 	highlight := lipgloss.NewStyle().Foreground(ui.ColorHighlight).Bold(true)
 
